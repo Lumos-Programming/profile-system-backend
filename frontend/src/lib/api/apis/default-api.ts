@@ -22,9 +22,9 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { ApiProfileBasicInfoPut200Response } from '../models';
+import type { BasicInfo } from '../models';
 // @ts-ignore
-import type { ApiProfileBasicInfoPutRequest } from '../models';
+import type { UpdateResponse } from '../models';
 /**
  * DefaultApi - axios parameter creator
  * @export
@@ -32,15 +32,45 @@ import type { ApiProfileBasicInfoPutRequest } from '../models';
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 学籍番号や名前、自己紹介などの基本情報を編集します。
-         * @summary 基本情報を更新する
-         * @param {ApiProfileBasicInfoPutRequest} apiProfileBasicInfoPutRequest 
+         * 現在登録されているユーザーの基本情報を返します。
+         * @summary 基本情報を取得する
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiProfileBasicInfoPut: async (apiProfileBasicInfoPutRequest: ApiProfileBasicInfoPutRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'apiProfileBasicInfoPutRequest' is not null or undefined
-            assertParamExists('apiProfileBasicInfoPut', 'apiProfileBasicInfoPutRequest', apiProfileBasicInfoPutRequest)
+        apiProfileBasicInfoGet: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/profile/basic-info`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 学籍番号や名前、自己紹介などの基本情報を編集します。
+         * @summary 基本情報を更新する
+         * @param {BasicInfo} basicInfo 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiProfileBasicInfoPut: async (basicInfo: BasicInfo, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'basicInfo' is not null or undefined
+            assertParamExists('apiProfileBasicInfoPut', 'basicInfo', basicInfo)
             const localVarPath = `/api/profile/basic-info`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -60,7 +90,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(apiProfileBasicInfoPutRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(basicInfo, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -78,14 +108,26 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DefaultApiAxiosParamCreator(configuration)
     return {
         /**
-         * 学籍番号や名前、自己紹介などの基本情報を編集します。
-         * @summary 基本情報を更新する
-         * @param {ApiProfileBasicInfoPutRequest} apiProfileBasicInfoPutRequest 
+         * 現在登録されているユーザーの基本情報を返します。
+         * @summary 基本情報を取得する
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async apiProfileBasicInfoPut(apiProfileBasicInfoPutRequest: ApiProfileBasicInfoPutRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ApiProfileBasicInfoPut200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.apiProfileBasicInfoPut(apiProfileBasicInfoPutRequest, options);
+        async apiProfileBasicInfoGet(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BasicInfo>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiProfileBasicInfoGet(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiProfileBasicInfoGet']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 学籍番号や名前、自己紹介などの基本情報を編集します。
+         * @summary 基本情報を更新する
+         * @param {BasicInfo} basicInfo 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async apiProfileBasicInfoPut(basicInfo: BasicInfo, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UpdateResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.apiProfileBasicInfoPut(basicInfo, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.apiProfileBasicInfoPut']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -101,14 +143,23 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = DefaultApiFp(configuration)
     return {
         /**
-         * 学籍番号や名前、自己紹介などの基本情報を編集します。
-         * @summary 基本情報を更新する
-         * @param {ApiProfileBasicInfoPutRequest} apiProfileBasicInfoPutRequest 
+         * 現在登録されているユーザーの基本情報を返します。
+         * @summary 基本情報を取得する
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        apiProfileBasicInfoPut(apiProfileBasicInfoPutRequest: ApiProfileBasicInfoPutRequest, options?: RawAxiosRequestConfig): AxiosPromise<ApiProfileBasicInfoPut200Response> {
-            return localVarFp.apiProfileBasicInfoPut(apiProfileBasicInfoPutRequest, options).then((request) => request(axios, basePath));
+        apiProfileBasicInfoGet(options?: RawAxiosRequestConfig): AxiosPromise<BasicInfo> {
+            return localVarFp.apiProfileBasicInfoGet(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 学籍番号や名前、自己紹介などの基本情報を編集します。
+         * @summary 基本情報を更新する
+         * @param {BasicInfo} basicInfo 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        apiProfileBasicInfoPut(basicInfo: BasicInfo, options?: RawAxiosRequestConfig): AxiosPromise<UpdateResponse> {
+            return localVarFp.apiProfileBasicInfoPut(basicInfo, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -121,15 +172,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  */
 export class DefaultApi extends BaseAPI {
     /**
-     * 学籍番号や名前、自己紹介などの基本情報を編集します。
-     * @summary 基本情報を更新する
-     * @param {ApiProfileBasicInfoPutRequest} apiProfileBasicInfoPutRequest 
+     * 現在登録されているユーザーの基本情報を返します。
+     * @summary 基本情報を取得する
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof DefaultApi
      */
-    public apiProfileBasicInfoPut(apiProfileBasicInfoPutRequest: ApiProfileBasicInfoPutRequest, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).apiProfileBasicInfoPut(apiProfileBasicInfoPutRequest, options).then((request) => request(this.axios, this.basePath));
+    public apiProfileBasicInfoGet(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).apiProfileBasicInfoGet(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 学籍番号や名前、自己紹介などの基本情報を編集します。
+     * @summary 基本情報を更新する
+     * @param {BasicInfo} basicInfo 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public apiProfileBasicInfoPut(basicInfo: BasicInfo, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).apiProfileBasicInfoPut(basicInfo, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

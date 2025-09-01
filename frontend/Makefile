@@ -1,7 +1,7 @@
 # Makefile for generating Next.js client from OpenAPI spec
 
 # Path to OpenAPI spec
-OPENAPI_SPEC := openapi.yaml
+OPENAPI_SPEC := ../openapi.yaml
 
 # Output directory for generated client code
 OUTPUT_DIR := src/lib/api

@@ -1,3 +1,3 @@
-export * from './api-profile-basic-info-put200-response';
-export * from './api-profile-basic-info-put-request';
-export * from './api-profile-basic-info-put-request-visibility';
+export * from './basic-info';
+export * from './update-response';
+export * from './visibility';

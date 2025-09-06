@@ -11,6 +11,7 @@ import (
 	"syscall"
 
 	"cloud.google.com/go/firestore"
+	"github.com/Lumos-Programming/profile-system-backend/pkg/config"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/api/option"
@@ -36,7 +37,7 @@ const (
 func main() {
 	ctx := context.Background()
 
-	cfg, err := loadConfig()
+	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("Config load error", "error", err)
 		os.Exit(1)

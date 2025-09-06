@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"os"
@@ -7,18 +7,18 @@ import (
 )
 
 type Config struct {
-	Port      int             `yaml:"port"`
-	Firestore FirestoreConfig `yaml:"firestore"`
+	Port      int       `yaml:"port"`
+	Firestore Firestore `yaml:"firestore"`
 }
 
-type FirestoreConfig struct {
+type Firestore struct {
 	ProjectID   string `yaml:"project_id"`
 	Credentials string `yaml:"credentials"`
 }
 
 const configPath = "../secrets/config.yaml"
 
-func loadConfig() (*Config, error) {
+func Load() (*Config, error) {
 	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, err

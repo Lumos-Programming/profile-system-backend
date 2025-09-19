@@ -11,27 +11,16 @@ import (
 	"syscall"
 
 	"cloud.google.com/go/firestore"
+	"github.com/Lumos-Programming/profile-system-backend/api"
 	"github.com/Lumos-Programming/profile-system-backend/pkg/config"
+	"github.com/Lumos-Programming/profile-system-backend/pkg/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/api/option"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
-type BasicInfo struct {
-	StudentID        string `json:"student_id"`
-	Faculty          string `json:"faculty"`
-	LastName         string `json:"last_name"`
-	FirstName        string `json:"first_name"`
-	Nickname         string `json:"nickname"`
-	SelfIntroduction string `json:"self_introduction"`
-}
-
 const (
-	firestoreCollection = "profiles"
-	firestoreDocID      = "default" // 単一プロフィールの場合
-	authCookieName      = "auth_token"
+	authCookieName = "auth_token"
 )
 
 func main() {
@@ -73,7 +62,9 @@ func main() {
 }
 
 func setupAPIServer(client *firestore.Client) *gin.Engine {
+	h := handler.NewHandler(client)
 	router := gin.Default()
+	api.RegisterHandlers(router, h)
 	router.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -88,44 +79,6 @@ func setupAPIServer(client *firestore.Client) *gin.Engine {
 	api := router.Group("/api") // 以下のapiグループをまとめる
 
 	api.Use(authHandler)
-
-	// プロフィール基本情報取得
-	api.GET("/api/profile/basic-info", func(c *gin.Context) {
-		// userID := c.GetString("user_id") // ここでユーザーIDを取得できる
-
-		// もしuserIDが空の場合は401を返す
-
-		doc, err := client.Collection(firestoreCollection).Doc(firestoreDocID).Get(c)
-		if err != nil {
-			if status.Code(err) == codes.NotFound {
-				c.JSON(200, BasicInfo{})
-				return
-			}
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		var info BasicInfo
-		if err := doc.DataTo(&info); err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, info)
-	})
-
-	// プロフィール基本情報更新
-	api.PUT("/api/profile/basic-info", func(c *gin.Context) {
-		var req BasicInfo
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
-		}
-		_, err := client.Collection(firestoreCollection).Doc(firestoreDocID).Set(c, req)
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, req)
-	})
 
 	// "/api/dummy/auth" エンドポイントを追加
 	api.POST("/dummy/auth", func(c *gin.Context) {

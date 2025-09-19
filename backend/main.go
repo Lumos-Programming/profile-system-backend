@@ -201,30 +201,10 @@ type Claims struct {
 func authHandler(c *gin.Context) {
 	tokenString, _ := c.Cookie(authCookieName)
 
-	token, _ := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return token, nil
-	})
+	// token, _ := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+	// 	return token, nil
+	// })
 
 	claims_UserID := token.Claims.(*Claims).UserID
 	c.Set("user_id", claims_UserID)
-}
-
-// /u/ userIDを受け取り、署名済みJWTトークン
-func generateDummyJWT(userID string) string {
-	type Claims struct {
-		UserID string `json:"user_id"`
-		jwt.RegisteredClaims
-	}
-	claims := Claims{
-		UserID:           userID,
-		RegisteredClaims: jwt.RegisteredClaims{},
-	}
-
-	secret := []byte("dummy_secret")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(secret)
-	if err != nil {
-		return ""
-	}
-	return tokenString
 }

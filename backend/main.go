@@ -34,6 +34,9 @@ const (
 	authCookieName      = "auth_token"
 )
 
+// jwtSecret は開発用の HMAC シークレットです。実運用では環境変数やシークレットマネージャで管理してください。
+var jwtSecret = []byte("dummy_secret")
+
 func main() {
 	ctx := context.Background()
 
@@ -199,12 +202,25 @@ type Claims struct {
 }
 
 func authHandler(c *gin.Context) {
-	tokenString, _ := c.Cookie(authCookieName)
+	tokenString, err := c.Cookie(authCookieName)
+	if err != nil || tokenString == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing auth token"})
+		return
+	}
 
-	// token, _ := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-	// 	return token, nil
-	// })
+	var claims Claims
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+		// 署名方式をチェック（HMAC）
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return jwtSecret, nil
+	})
+	if err != nil || !token.Valid {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+		return
+	}
 
-	claims_UserID := token.Claims.(*Claims).UserID
-	c.Set("user_id", claims_UserID)
+	c.Set("user_id", claims.UserID)
+	c.Next()
 }

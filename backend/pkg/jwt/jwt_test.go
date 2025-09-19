@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -17,20 +18,25 @@ func TestJWT_IssueAndAuthenticate(t *testing.T) {
 	}
 	secret := "testSecret"
 
-	// JWT発行
-	tokenString, err := IssueJWT(claims, secret)
+	// Manager を作成して JWT 発行
+	m := &Manager{secret: []byte(secret)}
+	tokenString, err := m.IssueJWT(Claims{RegisteredClaims: claims})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tokenString)
+	// JWT をターミナルに出力
+	fmt.Println("Issued JWT:", tokenString)
 
 	// 正しいシークレットで認証
-	token, err := AuthenticateJWT(tokenString, []byte(secret))
+	gotClaims, err := m.AuthenticateJWT(tokenString)
 	assert.NoError(t, err)
-	assert.True(t, token.Valid)
+	// AuthenticateJWT は *Claims を返すため Subject をチェック
+	assert.Equal(t, claims.Subject, gotClaims.Subject)
 
 	// 不正なシークレットで認証（失敗するはず）
-	token2, err2 := AuthenticateJWT(tokenString, []byte("wrongSecret"))
+	m2 := &Manager{secret: []byte("wrongSecret")}
+	token2, err2 := m2.AuthenticateJWT(tokenString) //
 	assert.Error(t, err2)
-	assert.Nil(t, token2)
+	assert.Nil(t, token2) // token2 が nil であること」をアサート（検証）します
 }
 
 func TestCreateClaims(t *testing.T) {
@@ -44,19 +50,28 @@ func TestCreateClaims(t *testing.T) {
 			id:     "testing123",
 			secret: "ThisIsSecret",
 		},
+		{
+			name:   "test2",
+			id:     "こんばんは",
+			secret: "あああ",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			claims := CreateClaims(tt.id, 24*time.Hour, "testIssuer")
-			got, err := IssueJWT(claims, tt.secret)
+			// Manager を使って発行・検証する
+			m := &Manager{secret: []byte(tt.secret)}
+			claims := CreateClaims(tt.id, "testIssuer")
+			got, err := m.IssueJWT(claims)
 			if err != nil {
 				t.Errorf("IssueJWT() error = %v", err)
 				return
 			}
-			verify, err := Verify(got, tt.secret)
+			// テスト用に発行した JWT をターミナルに出力
+			fmt.Printf("[%s] Issued JWT: %s\n", tt.name, got)
+			verify, err := m.AuthenticateJWT(got)
 			assert.NoError(t, err)
-			assert.Equal(t, claims.Id, verify.Id)
+			assert.Equal(t, claims.UserID, verify.UserID)
 		})
 	}
 }

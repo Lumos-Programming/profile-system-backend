@@ -19,17 +19,6 @@ import (
 	"google.golang.org/api/option"
 )
 
-/*
-type BasicInfo struct {
-	StudentID        string `json:"student_id"`
-	Faculty          string `json:"faculty"`
-	LastName         string `json:"last_name"`
-	FirstName        string `json:"first_name"`
-	Nickname         string `json:"nickname"`
-	SelfIntroduction string `json:"self_introduction"`
-}
-*/
-
 const (
 	authCookieName = "auth_token"
 )
@@ -90,14 +79,6 @@ func setupAPIServer(client *firestore.Client) *gin.Engine {
 	api := router.Group("/api") // 以下のapiグループをまとめる
 
 	api.Use(authHandler)
-
-	// ここにあった内容は移転しました
-
-	// プロフィール基本情報取得
-	//api.GET("/api/profile/basic-info", func(c *gin.Context) {})
-
-	// プロフィール基本情報更新
-	//api.PUT("/api/profile/basic-info", func(c *gin.Context) {	})
 
 	// "/api/dummy/auth" エンドポイントを追加
 	api.POST("/dummy/auth", func(c *gin.Context) {
